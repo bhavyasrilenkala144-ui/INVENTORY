@@ -1,0 +1,17 @@
+{% macro gauge(p) %}
+{% set status = stock_status(p.quantity, p.reorder_level) %}
+{% set scale = [p.reorder_level * 3, 1]|max %}
+{% set pct = [p.quantity * 100 / scale, 100]|min %}
+<div class="gauge gauge-{{ status }}" role="img"
+     aria-label="{{ p.quantity }} in stock, reorder at {{ p.reorder_level }}">
+  <span class="gauge-fill" style="width: {{ pct }}%"></span>
+  <span class="gauge-tick" style="left: 33.33%"></span>
+</div>
+{% endmacro %}
+
+{% macro badge(p) %}
+{% set status = stock_status(p.quantity, p.reorder_level) %}
+<span class="badge badge-{{ status }}">
+  {{ {'out': 'Out of stock', 'low': 'Reorder', 'ok': 'In stock'}[status] }}
+</span>
+{% endmacro %}

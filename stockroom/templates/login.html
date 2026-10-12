@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block bodyclass %}bare{% endblock %}
+{% block rail %}{% endblock %}
+{% block content %}
+<div class="login-box panel">
+  <h1>Stockroom</h1>
+  <p class="sub-lead">Sign in to manage inventory.</p>
+  {% if error %}<div class="flash flash-error" role="alert">{{ error }}</div>{% endif %}
+  <form method="post" class="adjust">
+    <label>Password
+      <input type="password" name="password" required autofocus autocomplete="current-password">
+    </label>
+    <button class="btn" type="submit">Sign in</button>
+  </form>
+</div>
+{% endblock %}

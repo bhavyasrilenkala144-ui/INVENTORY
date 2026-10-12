@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_macros.html" import gauge, badge with context %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Products</h1>
+  <a href="{{ url_for('product_new') }}" class="btn">Add product</a>
+</header>
+
+<form class="filters" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Search name, SKU or supplier" aria-label="Search products">
+  <select name="category" aria-label="Category">
+    <option value="">All categories</option>
+    {% for c in categories %}
+      <option value="{{ c }}" {{ 'selected' if c == category }}>{{ c }}</option>
+    {% endfor %}
+  </select>
+  <select name="status" aria-label="Stock status">
+    <option value="">Any stock level</option>
+    <option value="ok" {{ 'selected' if status == 'ok' }}>In stock</option>
+    <option value="low" {{ 'selected' if status == 'low' }}>Reorder</option>
+    <option value="out" {{ 'selected' if status == 'out' }}>Out of stock</option>
+  </select>
+  <button class="btn btn-quiet" type="submit">Apply filters</button>
+</form>
+
+<section class="panel flush">
+  {% if products %}
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Product</th><th>Category</th><th>Level</th><th class="num">On hand</th><th class="num">Unit price</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+    {% for p in products %}
+      <tr>
+        <td><a href="{{ url_for('product_detail', product_id=p.id) }}">{{ p.name }}</a><span class="sub">{{ p.sku }}</span></td>
+        <td>{{ p.category }}</td>
+        <td class="gauge-cell">{{ gauge(p) }}</td>
+        <td class="num">{{ p.quantity }}</td>
+        <td class="num">{{ p.unit_price|money }}</td>
+        <td>{{ badge(p) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% elif q or category or status %}
+    <p class="empty">No products match these filters. <a href="{{ url_for('products') }}">Clear filters</a></p>
+  {% else %}
+    <p class="empty">No products yet. <a href="{{ url_for('product_new') }}">Add your first product.</a></p>
+  {% endif %}
+</section>
+{% endblock %}

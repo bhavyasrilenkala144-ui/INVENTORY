@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Not found{% endblock %}
+{% block content %}
+<header class="page-head"><h1>We can't find that page</h1></header>
+<p class="empty">The product or page may have been deleted. <a href="{{ url_for('products') }}">Go to products</a></p>
+{% endblock %}

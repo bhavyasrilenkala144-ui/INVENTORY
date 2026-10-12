@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "_macros.html" import gauge, badge with context %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>{{ product.name }}</h1>
+    <p class="sub-lead">{{ product.sku }} · {{ product.category }}{% if product.supplier %} · {{ product.supplier }}{% endif %}</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-quiet" href="{{ url_for('product_edit', product_id=product.id) }}">Edit product</a>
+    <form method="post" action="{{ url_for('product_delete', product_id=product.id) }}"
+          onsubmit="return confirm('Delete {{ product.name|e }} and its stock history? This cannot be undone.')">
+      <button class="btn btn-danger" type="submit">Delete product</button>
+    </form>
+  </div>
+</header>
+
+<div class="two-col">
+  <section class="panel">
+    <div class="big-level">
+      <span class="stat-num">{{ product.quantity }}</span>
+      <span class="stat-label">on hand · reorder at {{ product.reorder_level }}</span>
+    </div>
+    {{ gauge(product) }}
+    <p>{{ badge(product) }}
+      <span class="sub">Worth {{ (product.quantity * product.unit_price)|money }} at {{ product.unit_price|money }} each</span></p>
+
+    <h2>Update stock</h2>
+    <form method="post" action="{{ url_for('product_adjust', product_id=product.id) }}" class="adjust">
+      <label>Amount
+        <input name="amount" type="number" min="1" step="1" required>
+      </label>
+      <label>Note (optional)
+        <input name="reason" placeholder="e.g. Delivery from supplier, Order #1042">
+      </label>
+      <div class="form-actions">
+        <button class="btn" name="direction" value="in" type="submit">Add stock</button>
+        <button class="btn btn-quiet" name="direction" value="out" type="submit">Remove stock</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>History</h2>
+    {% if history %}
+    <ul class="feed">
+      {% for m in history %}
+      <li>
+        <span class="delta {{ 'up' if m.delta > 0 else 'down' }}">{{ '%+d'|format(m.delta) }}</span>
+        <div>{{ m.reason }}<span class="sub">{{ m.created_at|ts }}</span></div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="empty">No stock movements yet. Add or remove stock to start the history.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

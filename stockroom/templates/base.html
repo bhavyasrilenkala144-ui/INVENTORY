@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Stockroom{% endblock %} · Stockroom</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+  {% block rail %}
+  <aside class="rail">
+    <a class="brand" href="{{ url_for('dashboard') }}">Stockroom</a>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('products') }}" class="{{ 'active' if request.endpoint in ('products', 'product_detail', 'product_edit') }}">Products</a>
+      <a href="{{ url_for('movements') }}" class="{{ 'active' if request.endpoint == 'movements' }}">Stock history</a>
+    </nav>
+    <div class="rail-foot">
+      <a href="{{ url_for('product_new') }}" class="btn btn-light">Add product</a>
+      <a href="{{ url_for('export_csv') }}" class="rail-link">Download CSV</a>
+      {% if auth_on and logged_in %}
+      <form method="post" action="{{ url_for('logout') }}"><button class="rail-link linklike" type="submit">Sign out</button></form>
+      {% endif %}
+    </div>
+  </aside>
+  {% endblock %}
+
+  <main>
+    {% if temporary_data %}
+      <div class="flash flash-warn" role="alert">Data is stored temporarily and will reset. Connect a Postgres database to keep it (see the README section "Connect a database").</div>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

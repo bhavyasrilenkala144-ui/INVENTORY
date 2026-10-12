@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "_macros.html" import gauge, badge with context %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Dashboard</h1>
+</header>
+
+<section class="stats">
+  <div class="stat">
+    <span class="stat-num">{{ totals.products }}</span>
+    <span class="stat-label">Products</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">{{ '{:,}'.format(totals.units) }}</span>
+    <span class="stat-label">Units on hand</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">{{ totals.value|money }}</span>
+    <span class="stat-label">Stock value</span>
+  </div>
+  <div class="stat {{ 'stat-alert' if restock_count }}">
+    <span class="stat-num">{{ restock_count }}</span>
+    <span class="stat-label">Need restocking</span>
+  </div>
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <h2>Restock first</h2>
+    {% if needs_restock %}
+    <table>
+      <thead><tr><th>Product</th><th>Level</th><th class="num">On hand</th></tr></thead>
+      <tbody>
+      {% for p in needs_restock %}
+        <tr>
+          <td><a href="{{ url_for('product_detail', product_id=p.id) }}">{{ p.name }}</a><span class="sub">{{ p.sku }}</span></td>
+          <td class="gauge-cell">{{ gauge(p) }}</td>
+          <td class="num">{{ p.quantity }} <span class="sub">of {{ p.reorder_level }} min</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty">Every product is above its reorder level.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>Latest movements</h2>
+    {% if recent %}
+    <ul class="feed">
+      {% for m in recent %}
+      <li>
+        <span class="delta {{ 'up' if m.delta > 0 else 'down' }}">{{ '%+d'|format(m.delta) }}</span>
+        <div>
+          <a href="{{ url_for('product_detail', product_id=m.product_id) }}">{{ m.name }}</a>
+          <span class="sub">{{ m.reason }} · {{ m.created_at|ts }}</span>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="empty">No stock has moved yet. <a href="{{ url_for('product_new') }}">Add your first product.</a></p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Stock history{% endblock %}
+{% block content %}
+<header class="page-head"><h1>Stock history</h1></header>
+<section class="panel flush">
+  {% if movements %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>When</th><th>Product</th><th>Note</th><th class="num">Change</th></tr></thead>
+    <tbody>
+    {% for m in movements %}
+      <tr>
+        <td>{{ m.created_at|ts }}</td>
+        <td><a href="{{ url_for('product_detail', product_id=m.product_id) }}">{{ m.name }}</a><span class="sub">{{ m.sku }}</span></td>
+        <td>{{ m.reason }}</td>
+        <td class="num"><span class="delta {{ 'up' if m.delta > 0 else 'down' }}">{{ '%+d'|format(m.delta) }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="empty">Nothing has moved yet. Add or remove stock from a product page.</p>
+  {% endif %}
+</section>
+{% endblock %}

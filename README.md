@@ -6,6 +6,8 @@ Track products, stock levels and every stock movement. Runs on your computer wit
 ```
 app.py              Flask app: pages, login, database code
 templates/          HTML pages
+templates_bundle.py Generated copy of the pages + CSS (so Vercel always has them)
+build_templates.py  Regenerates templates_bundle.py
 public/style.css    Styling (Vercel serves this folder directly)
 requirements.txt    Python packages
 .vscode/            VS Code debug setup
@@ -50,7 +52,7 @@ Follow the steps in order.
    password yet.
 4. **Connect a database.** In your Vercel project open the **Storage** tab, create a
    **Postgres** database (Neon is offered there) and connect it to the project. Vercel adds a
-   `DATABASE_URL` setting for you. If you use another Postgres host (Neon, Supabase, etc.),
+   `DATABASE_URL` (or `POSTGRES_URL`) setting for you; the app accepts either. If you use another Postgres host (Neon, Supabase, etc.),
    add `DATABASE_URL` yourself under **Settings > Environment Variables** using that host's
    connection string.
 5. **Add your settings.** Under **Settings > Environment Variables** add:
@@ -69,6 +71,12 @@ From then on, every `git push` redeploys the site.
 
 Prefer the command line? `npm i -g vercel`, then `vercel` (preview) and `vercel --prod`.
 
+## Editing the pages
+
+The pages live in `templates/` and `public/style.css`. After you change them, run
+`python build_templates.py` once and commit the updated `templates_bundle.py` too, so the
+deployed site picks up your changes.
+
 ## Features
 
 - Dashboard: products, units on hand, stock value, items needing restock, latest movements
@@ -80,6 +88,10 @@ Prefer the command line? `npm i -g vercel`, then `vercel` (preview) and `vercel 
 
 ## Troubleshooting
 
+- **`TemplateNotFound` in the Vercel logs:** run `python build_templates.py`, commit and push
+  `templates_bundle.py`.
+- **See the real error on screen:** add `SHOW_ERRORS` = `1` under Environment Variables, redeploy,
+  repeat the action that failed, and the error page will show the cause. Remove it afterwards.
 - **"Something went wrong" page online:** open your project's **Logs** in Vercel. Most often
   `DATABASE_URL` is missing or wrong.
 - **Yellow "Data is stored temporarily" banner:** no `DATABASE_URL` is set, so nothing is saved.
